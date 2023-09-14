@@ -1,19 +1,29 @@
 <?php
 session_start();
 
-// סיסמה קבועה
+
 $correct_password = "AAA";
+$max_attempts = 3;
+#חסימה מפני התקפת brute force
+if (!isset($_SESSION['login_attempts'])) {
+    $_SESSION['login_attempts'] = 0;
+}
 
 if (isset($_POST["password"])) {
     $password = $_POST["password"];
-    if ($password === $correct_password) {
-        $_SESSION["authenticated"] = true;
-        header("Location: index.php");
-        exit;
-    } else {
+    if ($_SESSION['login_attempts'] < $max_attempts && $password === $correct_password) {
+            $_SESSION["authenticated"] = true;
+            $_SESSION['login_attempts'] = 0;
+            header("Location: index.php");
+            exit;
+    }
+    else{
+        $_SESSION['login_attempts']++;
         $error_message = "סיסמה שגויה, נסה שוב.";
     }
+
 }
+
 ?>
 
 <!DOCTYPE html>
