@@ -1,29 +1,29 @@
 <?php
 session_start();
 
-
 $correct_password = "AAA";
 $max_attempts = 3;
-#חסימה מפני התקפת brute force
+
 if (!isset($_SESSION['login_attempts'])) {
     $_SESSION['login_attempts'] = 0;
 }
-
 if (isset($_POST["password"])) {
     $password = $_POST["password"];
+
+    # הגנה מפני התקפת brute force
     if ($_SESSION['login_attempts'] < $max_attempts && $password === $correct_password) {
-            $_SESSION["authenticated"] = true;
-            $_SESSION['login_attempts'] = 0;
-            header("Location: index.php");
-            exit;
-    }
-    else{
+        $_SESSION["authenticated"] = true;
+        $_SESSION['login_attempts'] = 0;
+        $_SESSION['csrf_token'] = substr(md5(rand(100,999)),0,10);
+        #יצירת טוקן שישמש לדפים הבאים במערכת כדי להגן מפני התקפת csrf
+
+        header("Location: view_mail_box_data.php");
+        exit;
+    } else {
         $_SESSION['login_attempts']++;
         $error_message = "סיסמה שגויה, נסה שוב.";
     }
-
 }
-
 ?>
 
 <!DOCTYPE html>
