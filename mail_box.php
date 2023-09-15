@@ -48,6 +48,16 @@ class mail_box {
         }
     }
 
+    public function getMailboxById($id) {
+        $sql = "SELECT * FROM mailbox_info WHERE id = $id";
+        $result = $this->conn->query($sql);
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        } else {
+            return null;
+        }
+    }
+
     public function closeConnection() {
         $this->mysqli->disconnect();
     }
