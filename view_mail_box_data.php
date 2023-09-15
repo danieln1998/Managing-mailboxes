@@ -12,20 +12,19 @@ include "mail_box.php";
 $mail_box_db = new mail_box($db_host, $db_user, $db_pass, $db_name);
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST["add"])) {
-        $name = $_POST["name"];
-        $box_number = $_POST["box_number"];
-        $phone = $_POST["phone"];
-        $result = $mail_box_db->addMailbox($name, $box_number, $phone);
-    } elseif (isset($_POST["update"])) {
-        $id = $_POST["id"];
-        $name = $_POST["name"];
-        $box_number = $_POST["box_number"];
-        $phone = $_POST["phone"];
-        $result = $mail_box_db->updateMailbox($id, $name, $box_number, $phone);
-    } elseif (isset($_POST["delete"])) {
-        $id = $_POST["id"];
-        $result = $mail_box_db->deleteMailbox($id);
+    // הגנה מפני התקפת CSRF
+    if (!empty($_SESSION['csrf_token']) && $_POST['csrf_token'] === $_SESSION['csrf_token']) {
+        if (isset($_POST["add"])) {
+            $name = $_POST["name"];
+            $box_number = $_POST["box_number"];
+            $phone = $_POST["phone"];
+            $result = $mail_box_db->addMailbox($name, $box_number, $phone);
+        } elseif (isset($_POST["delete"])) {
+            $id = $_POST["id"];
+            $result = $mail_box_db->deleteMailbox($id);
+        }
+    } else {
+        $error_message = "שגיאה בהשלמת הפעולה.";
     }
 }
 
@@ -42,6 +41,13 @@ $mail_box_db->closeConnection();
 </head>
 <body>
 <h2>ניהול תיבות דואר</h2>
+
+<?php
+if (isset($error_message)) {
+    echo '<p style="color: red;">' . $error_message . '</p>';
+}
+?>
+
 <h3>רשימת מרצים</h3>
 <table border="1">
     <tr>
@@ -53,25 +59,26 @@ $mail_box_db->closeConnection();
     </tr>
     <?php foreach ($mailboxes as $mailbox) { ?>
         <tr>
-
-                <form method="post">
-                    <input type="hidden" name="id" value="<?php echo $mailbox["id"]; ?>">
-                    <td> <input type="text" name="name" value="<?php echo $mailbox["name"]; ?>" required> </td>
-                    <td> <input type="number" name="box_number" value="<?php echo $mailbox["box_number"]; ?>" required> </td>
-                    <td> <input type="number" name="phone" value="<?php echo $mailbox["phone"]; ?>" required> </td>
-                    <td> <button type="submit" name="update">ערוך</button></td>
-                </form>
+            <td><?php echo $mailbox["name"]; ?></td>
+            <td><?php echo $mailbox["box_number"]; ?></td>
+            <td><?php echo $mailbox["phone"]; ?></td>
+            <td>
+                <a href="edit.php?id=<?php echo $mailbox["id"]; ?>">ערוך</a>
+            </td>
             <td>
                 <form method="post">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     <input type="hidden" name="id" value="<?php echo $mailbox["id"]; ?>">
                     <button type="submit" name="delete">מחק</button>
                 </form>
             </td>
         </tr>
     <?php } ?>
+
 </table>
 <h3>הוספת מרצה חדש</h3>
 <form method="post">
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
     <label for="name">שם מרצה:</label>
     <input type="text" id="name" name="name" required>
     <br>
