@@ -10,12 +10,13 @@ class mail_box {
         $this->conn=$this->mysqli->getConn();
     }
     public function addMailbox($name, $box_number, $phone) {
+        // השימוש ב-addslashes להגנה מפני SQL Injection
+        $name = addslashes($name);
+        $box_number = addslashes($box_number);
+        $phone = addslashes($phone);
+
         $sql = "INSERT INTO mailbox_info (name, box_number, phone) VALUES ('$name', '$box_number', '$phone')";
-        if ($this->conn->query($sql) === TRUE) {
-            return "מרצה נוסף בהצלחה!";
-        } else {
-            return "שגיאה בהוספת המרצה: " . $this->conn->error;
-        }
+        $result = $this->conn->query($sql);
     }
 
     public function getAllMailboxes() {
@@ -31,24 +32,32 @@ class mail_box {
     }
 
     public function updateMailbox($id, $name, $box_number, $phone) {
+        // השימוש ב-addslashes להגנה מפני SQL Injection
+        $name = addslashes($name);
+        $box_number = addslashes($box_number);
+        $phone = addslashes($phone);
+
         $sql = "UPDATE mailbox_info SET name='$name', box_number='$box_number', phone='$phone' WHERE id=$id";
         if ($this->conn->query($sql) === TRUE) {
-            return "פרטי המרצה עודכנו בהצלחה!";
+            return true;
         } else {
-            return "שגיאה בעדכון פרטי המרצה: " . $this->conn->error;
+            return false;
         }
+
     }
 
     public function deleteMailbox($id) {
+        // השימוש ב-(int) להגנה מפני SQL Injection
+        $id = (int)$id;
+
         $sql = "DELETE FROM mailbox_info WHERE id=$id";
-        if ($this->conn->query($sql) === TRUE) {
-            return "המרצה נמחק בהצלחה!";
-        } else {
-            return "שגיאה במחיקת המרצה: " . $this->conn->error;
-        }
+        $result = $this->conn->query($sql);
     }
 
     public function getMailboxById($id) {
+        // השימוש ב-(int) להגנה מפני SQL Injection
+        $id = (int)$id;
+
         $sql = "SELECT * FROM mailbox_info WHERE id = $id";
         $result = $this->conn->query($sql);
         if ($result->num_rows > 0) {
@@ -61,6 +70,5 @@ class mail_box {
     public function closeConnection() {
         $this->mysqli->disconnect();
     }
-
 }
 ?>
