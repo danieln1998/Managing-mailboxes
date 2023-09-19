@@ -59,10 +59,10 @@ if (isset($error_message)) {
     </tr>
     <?php foreach ($mailboxes as $mailbox) { ?>
         <tr>
-            
+
             <td><?php echo htmlspecialchars($mailbox["name"]); //הגנה מפני stored xss ?> </td>
-            <td><?php echo $mailbox["box_number"]; ?></td>
-            <td><?php echo $mailbox["phone"]; ?></td>
+            <td><?php echo htmlspecialchars($mailbox["box_number"]); //הגנה מפני stored xss ?></td>
+            <td><?php echo htmlspecialchars($mailbox["phone"]); //הגנה מפני stored xss ?></td>
             <td>
                 <a href="edit.php?id=<?php echo $mailbox["id"]; ?>">ערוך</a>
             </td>
